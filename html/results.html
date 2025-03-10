@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 60%;
+            margin: 50px auto;
+        }
+        .header {
+            height: 280px;
+            background-image: url('pics/mw.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .result {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .candidate {
+            font-weight: bold;
+        }
+        .percentage {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="header"></div>
+        <h1>Election Results</h1>
+        <div>
+            <?php
+            // Database connection
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "election_db";
+
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+
+            $sql = "SELECT election_title, candidate_name, percentage_votes FROM election_results ORDER BY election_title";
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                $current_election = "";
+                while($row = $result->fetch_assoc()) {
+                    if ($current_election != $row["election_title"]) {
+                        if ($current_election != "") {
+                            echo "</div>";
+                        }
+                        echo "<div class='result'><h2>" . $row["election_title"] . "</h2>";
+                        $current_election = $row["election_title"];
+                    }
+                    echo "<p class='candidate'>" . $row["candidate_name"] . " - <span class='percentage'>" . $row["percentage_votes"] . "%</span></p>";
+                }
+                echo "</div>";
+            } else {
+                echo "<p>No election results available.</p>";
+            }
+            $conn->close();
+            ?>
+        </div>
+    </div>
+</body>
+</html>
